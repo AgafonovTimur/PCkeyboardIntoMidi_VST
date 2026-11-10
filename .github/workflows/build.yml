@@ -1,0 +1,29 @@
+name: Build VST3 (Windows)
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Забрать исходники
+        uses: actions/checkout@v4
+
+      # Версия Visual Studio не указана намеренно: CMake сам находит ту,
+      # что установлена на машине сборки. JUCE скачивается автоматически
+      # (см. CMakeLists.txt).
+      - name: Настроить проект
+        run: cmake -B build -A x64
+
+      - name: Собрать
+        run: cmake --build build --config Release --parallel 4
+
+      - name: Выложить готовый плагин
+        uses: actions/upload-artifact@v4
+        with:
+          name: PCkeyboardIntoMidi-VST3-Windows
+          path: build/PCkeyboardIntoMidi_artefacts/Release/VST3/
+          if-no-files-found: error
